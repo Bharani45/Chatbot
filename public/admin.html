@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; background: #f5f5f5; }
+    #admin { max-width: 600px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 10px; }
+    .customer { border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+    .messages { max-height: 200px; overflow-y: scroll; margin-bottom: 5px; }
+    input { width: 70%; padding: 5px; }
+    button { width: 25%; padding: 5px; }
+  </style>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self' ws://localhost:3000 http://localhost:3000 https://cdn.socket.io; script-src 'self' https://cdn.socket.io; style-src 'self' 'unsafe-inline';">
+</head>
+<body>
+  <div id="admin">
+    <h2>Admin Panel</h2>
+    <div id="customers"></div>
+  </div>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>
