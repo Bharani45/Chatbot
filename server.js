@@ -1,3 +1,5 @@
+// server.js
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -5,12 +7,20 @@ const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+// Configure Socket.IO with CORS to allow connections from your frontend
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// Store connected customers
+// Store connected customers and admins
 let customers = {};
+let admins = [];
 
 // Socket.IO connection
 io.on("connection", (socket) => {
@@ -21,6 +31,14 @@ io.on("connection", (socket) => {
     socket.role = role;
     if (role === "customer") {
       customers[socket.id] = socket;
+    } else if (role === "admin") {
+      admins.push(socket);
+      // Immediately send the list of all waiting customers to the new admin
+      const customerList = Object.keys(customers).map(id => ({
+        id: id,
+        message: 'No message yet'
+      }));
+      socket.emit("customerList", customerList);
     }
   });
 
@@ -28,10 +46,8 @@ io.on("connection", (socket) => {
   socket.on("customerMessage", (msg) => {
     if (socket.role === "customer") {
       // Send message to all admins
-      io.sockets.sockets.forEach((s) => {
-        if (s.role === "admin") {
-          s.emit("newCustomerMessage", { id: socket.id, message: msg });
-        }
+      admins.forEach((adminSocket) => {
+        adminSocket.emit("newCustomerMessage", { id: socket.id, message: msg });
       });
     }
   });
@@ -46,7 +62,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
-    if (socket.role === "customer") delete customers[socket.id];
+    if (socket.role === "customer") {
+      delete customers[socket.id];
+    } else if (socket.role === "admin") {
+      admins = admins.filter(admin => admin.id !== socket.id);
+    }
   });
 });
 

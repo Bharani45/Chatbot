@@ -6,9 +6,9 @@ const input = document.getElementById("input");
 const sendBtn = document.getElementById("sendBtn");
 
 function appendMessage(sender, text) {
-  const p = document.createElement("p");
-  p.className = sender === "You" ? "user" : "bot";
-  p.textContent = `${sender}: ${text}`;
+  const p = document.createElement("div");
+  p.className = `message ${sender === "You" ? "user" : "bot"}`;
+  p.textContent = text;
   messagesDiv.appendChild(p);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
